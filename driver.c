@@ -30,29 +30,41 @@ int validSec(char* sec){
 int main(int argc, char** argv){
 	int option;
 	int sec;
-	while((option = getopt(argc, argv, "ht:")) !=-1){
-		switch(option){
-			case 'h':
-				helpmenu(argv[0]);
-				return 1; 
-			case 't':
-				if(validSec(optarg)){
-					sec = atoi(optarg);
-					printf("Received sec valued: %d\n",sec);
-				}else{
-					fprintf(stderr,"Error: %s is not a valid number\n",optarg);
+	char* logfile;
+	while(optind < argc){
+		if((option = getopt(argc, argv, "ht:")) !=-1){
+			switch(option){
+				case 'h':
+					helpmenu(argv[0]);
+					return 1; 
+				case 't':
+					if(validSec(optarg)){
+						sec = atoi(optarg);
+						printf("Received sec valued: %d\n",sec);
+					}else{
+						fprintf(stderr,"Error: %s is not a valid number\n",optarg);
+						return EXIT_FAILURE;
+					}
+					break;
+				case '?':
+					if(optopt == 't')
+						fprintf(stderr,"-%c without argument\n",optopt);
+					else
+						fprintf(stderr, "Unrecognized option: -%c\n", optopt);
 					return EXIT_FAILURE;
-				}
-				break;
-			case '?':
-				if(optopt == 't')
-					fprintf(stderr,"-%c without argument\n",optopt);
-				else
-					fprintf(stderr, "Unrecognized option: -%c\n", optopt);
+			}
+		}else{
+			if(logfile == NULL){
+				logfile = argv[optind];
+				printf("The file name is: %s\n",logfile);
+			}
+			else{
+				fprintf(stderr,"Error: There are too many file name\n");
 				return EXIT_FAILURE;
-			default: 
-				printf("From default");
+			}
+			optind++;		
 		}
+		
 	}
 	printf("\nDone while loop");
 	return EXIT_SUCCESS;
