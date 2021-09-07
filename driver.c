@@ -45,7 +45,7 @@ int main(int argc, char** argv){
 	char line[60] = {"\0"};
 	char type;
 	char msg[58] = {"\0"}; 
-	char* logfile;
+	char* logfile = NULL;
 	char* log;
 	while(optind < argc){
 		if((option = getopt(argc, argv, "ht:")) !=-1){
@@ -82,6 +82,7 @@ int main(int argc, char** argv){
 		}
 		
 	}
+
 	while(i<n_array){
 		memset(line, 0, strlen(line));
 		memset(msg, 0, strlen(msg));
