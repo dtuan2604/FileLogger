@@ -22,8 +22,11 @@ void helpmenu(char* driver){
 	printf("form.\n");
 	printf("%s [-h] [-t sec] [logfile]\n",driver);
 	printf("\t [-h]: print help menu.\n");
-	printf("\t [-t sec]: specify the time sleep between each logging\n");
-	printf("\t [logfile]: specify the output file\n");
+	printf("\t [-t sec]: specify the time sleep between each logging. If\n");
+	printf("\t user doesn't specify this option, the time will automatically\n");
+	printf("\t be set to 2.\n");
+	printf("\t [logfile]: specify the output file. If user doesn't specify this\n");
+	printf("\t option, the output file will automatically be set to 'message.log'\n");
 
 }
 
@@ -40,7 +43,7 @@ int validSec(char* sec){
 
 int main(int argc, char** argv){
 	int option;
-	int sec;
+	int sec = 2;
 	int i = 0;
 	char line[60] = {"\0"};
 	char type;
@@ -64,9 +67,9 @@ int main(int argc, char** argv){
 					break;
 				case '?':
 					if(optopt == 't')
-						fprintf(stderr,"-%c without argument\n",optopt);
+						fprintf(stderr,"%s: ERROR: -%c without argument\n",argv[0],optopt);
 					else
-						fprintf(stderr, "Unrecognized option: -%c\n", optopt);
+						fprintf(stderr, "%s: ERROR: Unrecognized option: -%c\n",argv[0],optopt);
 					return EXIT_FAILURE;
 			}
 		}else{
@@ -82,8 +85,11 @@ int main(int argc, char** argv){
 		}
 		
 	}
-
-	while(i<n_array){
+	
+	if(logfile == NULL){
+		logfile = "message.log";
+	}
+	while(i<(n_array-1)){
 		memset(line, 0, strlen(line));
 		memset(msg, 0, strlen(msg));
 		strcpy(line, message[i]);	
@@ -96,6 +102,7 @@ int main(int argc, char** argv){
 		}
 		i++;
 	}	
+	
 	log = getlog();
 	if(log == NULL){
 		fprintf(stderr,"%s: ",argv[0]);
@@ -103,6 +110,12 @@ int main(int argc, char** argv){
                 return EXIT_FAILURE;
 	}else
 		printf("%s", log);		
-
+	
+	printf("Saving the log to file '%s'",logfile);
+	if(savelog(logfile) == -1){
+		fprintf(stderr,"%s: ",argv[0]);
+                perror("Error");
+                return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }

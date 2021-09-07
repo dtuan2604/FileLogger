@@ -84,5 +84,31 @@ char *getlog(void){
 }
 
 int savelog(char *filename){
+	char *log = getlog();
+	if(log == NULL)
+		return -1; //getlog already set errno
+	
+	FILE * ptr = fopen(filename, "a");
+	if(ptr == NULL)
+		return -1;
+	else 
+		fputs(log,ptr);
+	fclose(ptr); 
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
