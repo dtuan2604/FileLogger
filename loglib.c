@@ -43,6 +43,17 @@ int addmsg(const char type, const char* msg){
 }
 
 void clearlog(void){
+	log_t *ptr = headptr;
+	log_t *temp;
+	logsize = 0;
+	headptr = NULL;
+	tailptr = NULL;
+	while(ptr != NULL){
+		temp = ptr->next;
+		free(ptr);
+		ptr = temp;
+	}
+	return;
 }
 
 char *getlog(void){
@@ -50,13 +61,14 @@ char *getlog(void){
 	time_t t;
 	struct tm* local;
 	log_t *temptr = headptr;
-	if((result = (char* )malloc(logsize)) == NULL)
-		return NULL;
-	//temptr = NULL;//test errno
+	
 	if(temptr == NULL){
 		errno = EADDRNOTAVAIL;
 		return NULL;
 	}
+	if((result = (char* )malloc(logsize)) == NULL)
+                return NULL;
+
 	while(temptr != NULL){
 		char time[30] = {"\0"};
 		char *msg;
@@ -81,7 +93,8 @@ char *getlog(void){
 		strcat(result,type);
 		strcat(result,msg);
 		strcat(result,"\n");
-		temptr = temptr->next;				
+		temptr = temptr->next;
+		free(msg);				
 	}
 	return result;
 }

@@ -115,6 +115,8 @@ int main(int argc, char** argv){
 	delay = generaterand(sec);
  
 	printf("The log file is: %s.\n",logfile);
+	printf("The average delay time is: %d second(s).\n", sec);
+
 	printf("Currently, we have two set of messages. One includes fatal\n");
 	printf("message. The other one doesn't. Look at two set of messages below\n");
 	printf("and enter the number of the set message you want to choose.\n");
@@ -152,6 +154,7 @@ int main(int argc, char** argv){
                 		return EXIT_FAILURE;
         		}
 			printf("Fatal message added, program is terminated.\n");
+			clearlog();
 			exit(1);
 			
 		}
@@ -166,6 +169,8 @@ int main(int argc, char** argv){
        	}
 	sleep(2);
 	printf("Finish saving message in %s.\n",logfile);	
+	printf("Now clear the log.\n");
+	clearlog();
 	
 	return EXIT_SUCCESS;
 }
