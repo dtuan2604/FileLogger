@@ -7,13 +7,20 @@
 #include <errno.h>
 
 extern int errno;
-char* message[] = {"I This program has bug",
+char* withfatal[] = {"I This program has bug",
 			"W Bug on line 3",
 			"E Cannot find an error",
 			"W Another bug on line 6",
-			"I Need to update C version",
-			"F The program has to be stopped"};
-#define n_array (sizeof(message)/sizeof(char*))
+			"F The program has to be stopped",
+			"I Need to update C version"};
+char* withoutfatal[] = {"I This program has bug",
+                        "W Bug on line 3",
+                        "E Cannot find an error",
+                        "W Another bug on line 6",
+                        "I Need to update C version",
+                        "E An error on line 456"};
+
+#define n_array (sizeof(withfatal)/sizeof(char*))
 
 void helpmenu(char* driver){
 	printf("This program is used to test the functionality\n");
@@ -30,7 +37,15 @@ void helpmenu(char* driver){
 
 }
 
-int validSec(char* sec){
+void printmes(char** msg, int size){
+	int i = 0;
+	while(i < size){
+		printf("\t%s.\n",msg[i]);
+		i++;
+	}
+}
+
+int validNum(char* sec){
 	int size = strlen(sec);
 	int i = 0;
 	while(i < size){
@@ -41,15 +56,26 @@ int validSec(char* sec){
 	return 1;
 }
 
+int generaterand(int sec){
+	srand(time(0));
+	int num = (rand() % (2*sec + 1));
+	return num;
+}
+
 int main(int argc, char** argv){
 	int option;
 	int sec = 2;
 	int i = 0;
-	char line[60] = {"\0"};
+	int delay;
+	
 	char type;
+	char line[60] = {"\0"};
 	char msg[58] = {"\0"}; 
 	char* logfile = NULL;
-	char* log;
+	char userinput;
+	char** message;
+	
+
 	while(optind < argc){
 		if((option = getopt(argc, argv, "ht:")) !=-1){
 			switch(option){
@@ -57,11 +83,10 @@ int main(int argc, char** argv){
 					helpmenu(argv[0]);
 					return 1; 
 				case 't':
-					if(validSec(optarg)){
+					if(validNum(optarg)){
 						sec = atoi(optarg);
-						printf("Received sec value: %d\n",sec);
 					}else{
-						fprintf(stderr,"Error: %s is not a valid number\n",optarg);
+						fprintf(stderr,"%s: ERROR: %s is not a valid number\n",argv[0],optarg);
 						return EXIT_FAILURE;
 					}
 					break;
@@ -75,7 +100,6 @@ int main(int argc, char** argv){
 		}else{
 			if(logfile == NULL){
 				logfile = argv[optind];
-				printf("The file name is: %s\n",logfile);
 			}
 			else{
 				fprintf(stderr,"Error: There are too many file name\n");
@@ -86,36 +110,62 @@ int main(int argc, char** argv){
 		
 	}
 	
-	if(logfile == NULL){
+	if(logfile == NULL)
 		logfile = "message.log";
-	}
-	while(i<(n_array-1)){
+	delay = generaterand(sec);
+ 
+	printf("The log file is: %s.\n",logfile);
+	printf("Currently, we have two set of messages. One includes fatal\n");
+	printf("message. The other one doesn't. Look at two set of messages below\n");
+	printf("and enter the number of the set message you want to choose.\n");
+	printf("Set 1, no fatal message:\n");
+	printmes(withoutfatal, n_array);
+	printf("Set 2, with fatal message: \n");
+	printmes(withfatal, n_array);
+	
+	do{
+		printf("Please enter the set of messages you want to choose (1 or 2): ");
+		scanf(" %c",&userinput);
+	}while((userinput!= '1') && (userinput != '2'));
+
+	if(userinput == '1')
+		message = withoutfatal;
+	else
+		message = withfatal;
+	
+	printf("Processing...\n");
+	while(i<n_array){
 		memset(line, 0, strlen(line));
 		memset(msg, 0, strlen(msg));
 		strcpy(line, message[i]);	
 		type = line[0];
 		strcpy(msg, &line[2]);
-		if(addmsg(type,msg) == -1){
+		int check = addmsg(type,msg);
+		if(check == -1){
 			fprintf(stderr,"%s: ",argv[0]);
 			perror("Error");
 			return EXIT_FAILURE;
+		}else if(check == 1){
+			if(savelog(logfile) == -1){
+		                fprintf(stderr,"%s: ",argv[0]);
+                		perror("Error");
+                		return EXIT_FAILURE;
+        		}
+			printf("Fatal message added, program is terminated.\n");
+			exit(1);
+			
 		}
 		i++;
-	}	
-	
-	log = getlog();
-	if(log == NULL){
-		fprintf(stderr,"%s: ",argv[0]);
-                perror("Error");
-                return EXIT_FAILURE;
-	}else
-		printf("%s", log);		
-	
-	printf("Saving the log to file '%s'",logfile);
-	if(savelog(logfile) == -1){
-		fprintf(stderr,"%s: ",argv[0]);
-                perror("Error");
-                return EXIT_FAILURE;
+		sleep(delay);
 	}
+	printf("Saving message in %s.\n",logfile);
+	if(savelog(logfile) == -1){
+       		fprintf(stderr,"%s: ",argv[0]);
+                perror("Error");
+                return EXIT_FAILURE;
+       	}
+	sleep(2);
+	printf("Finish saving message in %s.\n",logfile);	
+	
 	return EXIT_SUCCESS;
 }

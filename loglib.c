@@ -34,7 +34,10 @@ int addmsg(const char type, const char* msg){
 	else
 		tailptr->next = newnode;
 	tailptr = newnode;
-	logsize = logsize + strlen(msg) + 41;	
+	logsize = logsize + strlen(msg) + 41;
+	
+	if(type == 'F')
+		return 1; 	
 	return 0; //if successfull 
 
 }
