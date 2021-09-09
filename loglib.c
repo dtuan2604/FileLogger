@@ -110,6 +110,8 @@ int savelog(char *filename){
 	else 
 		fputs(log,ptr);
 	fclose(ptr); 
+	clearlog();
+
 	return 0;
 }
 

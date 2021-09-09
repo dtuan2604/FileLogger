@@ -20,7 +20,7 @@ char* withoutfatal[] = {"I This program has bug",
                         "I Need to update C version",
                         "E An error on line 456"};
 
-#define n_array (sizeof(withfatal)/sizeof(char*))
+#define n_array (sizeof(withfatal)/sizeof(char*)) //Define the array size of the two sets of messages
 
 void helpmenu(char* driver){
 	printf("This program is used to test the functionality\n");
@@ -37,6 +37,7 @@ void helpmenu(char* driver){
 
 }
 
+//This function is used to print two sets of messages  
 void printmes(char** msg, int size){
 	int i = 0;
 	while(i < size){
@@ -45,6 +46,7 @@ void printmes(char** msg, int size){
 	}
 }
 
+//This function checks whether the user's input is a valid number
 int validNum(char* sec){
 	int size = strlen(sec);
 	int i = 0;
@@ -56,6 +58,7 @@ int validNum(char* sec){
 	return 1;
 }
 
+//This function is used to generate a random sleep time between each log
 int generaterand(int sec){
 	srand(time(0));
 	int num = (rand() % (2*sec + 1));
@@ -68,13 +71,12 @@ int main(int argc, char** argv){
 	int i = 0;
 	int delay;
 	
+	char userinput;
 	char type;
 	char line[60] = {"\0"};
 	char msg[58] = {"\0"}; 
 	char* logfile = NULL;
-	char userinput;
-	char** message;
-	
+	char** message;	
 
 	while(optind < argc){
 		if((option = getopt(argc, argv, "ht:")) !=-1){
@@ -112,12 +114,11 @@ int main(int argc, char** argv){
 	
 	if(logfile == NULL)
 		logfile = "message.log";
-	delay = generaterand(sec);
  
 	printf("The log file is: %s.\n",logfile);
 	printf("The average delay time is: %d second(s).\n", sec);
 
-	printf("Currently, we have two set of messages. One includes fatal\n");
+	printf("\nCurrently, we have two set of messages. One includes fatal\n");
 	printf("message. The other one doesn't. Look at two set of messages below\n");
 	printf("and enter the number of the set message you want to choose.\n");
 	printf("Set 1, no fatal message:\n");
@@ -136,41 +137,40 @@ int main(int argc, char** argv){
 		message = withfatal;
 	
 	printf("Processing...\n");
+
 	while(i<n_array){
-		memset(line, 0, strlen(line));
+		memset(line, 0, strlen(line)); //Clear all variables each time logging
 		memset(msg, 0, strlen(msg));
 		strcpy(line, message[i]);	
-		type = line[0];
+		type = line[0]; //The type of message is always placed in the first index of the string
 		strcpy(msg, &line[2]);
 		int check = addmsg(type,msg);
 		if(check == -1){
 			fprintf(stderr,"%s: ",argv[0]);
 			perror("Error");
 			return EXIT_FAILURE;
-		}else if(check == 1){
+		}else if(check == 1){ //Recevie fatal message
 			if(savelog(logfile) == -1){
 		                fprintf(stderr,"%s: ",argv[0]);
                 		perror("Error");
                 		return EXIT_FAILURE;
         		}
 			printf("Fatal message added, program is terminated.\n");
-			clearlog();
-			exit(1);
-			
+			exit(1);	
 		}
 		i++;
+		delay = generaterand(sec);
 		sleep(delay);
 	}
-	printf("Saving message in %s.\n",logfile);
+
+	printf("Saving message in '%s'.\n",logfile);
 	if(savelog(logfile) == -1){
        		fprintf(stderr,"%s: ",argv[0]);
                 perror("Error");
                 return EXIT_FAILURE;
        	}
-	sleep(2);
-	printf("Finish saving message in %s.\n",logfile);	
-	printf("Now clear the log.\n");
-	clearlog();
+	sleep(1);
+	printf("Finish saving message in '%s'.\n",logfile);	
 	
 	return EXIT_SUCCESS;
 }

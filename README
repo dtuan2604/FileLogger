@@ -1,0 +1,28 @@
+Name: Duong Tuan Hoang
+Section: CMPSCI 4760 - Operating System
+Version Control: git
+
+Loglib.c:
+The loglib.c provide user a logging utility. This library has 4 functions which are addmsg, getlog, savelog, and clearlog.
+The addmsg function will add message to a log. It has two pointers (head and tail) to keep track of the log. Add messge function 
+will return 0 if successfull, otherwise it return -1 for uncessfull and set errno along with it. If the user provide a fatal 
+message, it will return immediately and save the log in a file. Get log function will generate a string which contains the log,
+and return it. Get log function return a pointer if succesfull, otherwirse it returns NULL for unsuccessfull and set errno along 
+with it. Savelog function will take in one string parameter as filename. It saves the current log to that file and call clearlog 
+to clear the log. Savelog return 0 if successfull, otherwise it returns -1 if unsuccessfull and set errno along with it.
+
+Driver.c:
+This file provide a program to test loglib.c's functionality. The program can take it 3 argument: [-h] [-t sec] [logfile]
+        [-h]: print help menu.
+        [-t sec]: specify the average time sleep between each logging. If user doesn't
+       		  specify this option, the time will automatically be set to 2.
+        [logfile]: specify the output file. If user doesn't specify this option, 
+        	   the output file will automatically be set to 'message.log'.
+	This program will print an error if user passed too many logfile, or pass char literal when using -t option.
+When running this program, it will ask user to pick two set of message (with fatal message and no fatal message) to test the 
+loglib.c. User can pick either of them and wait for the process. The program will let user know when it finishes. Additionally,
+this program takes advantage of perror to print error messages whenever there is any errors in the loglib.c.
+
+Instruction to compile and run this project:
+	Type 'make' to start compiling. After that, type 'make clean' to clean the object files. The output file should be named
+	as 'driver.c'. Run command './driver.c' along with some arguments if you wish to do so. 
